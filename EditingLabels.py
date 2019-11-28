@@ -2,16 +2,16 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
 
-def Feature_Encoder(X, cols):
+def feature_encoder(x, cols):
     for c in cols:
         lbl = LabelEncoder()
-        lbl.fit(list(X[c].values))
-        X[c] = lbl.transform(list(X[c].values))
-    return X
+        lbl.fit(list(x[c].values))
+        x[c] = lbl.transform(list(x[c].values))
+    return x
 
 
-def featureScaling(X, a, b):
-    Normalized_X = np.zeros((X.shape[0], X.shape[1]))
-    for i in range(X.shape[1]):
-        Normalized_X[:, i] = ((X[:, i]-min(X[:, i]))/(max(X[:, i])-min(X[:, i])))*(b-a)+a
-    return Normalized_X
+def feature_scaling(x, a, b):
+    normalized_x = np.zeros((x.shape[0], x.shape[1]))
+    for i in range(x.shape[1]):
+        normalized_x[:, i] = ((x[:, i] - min(x[:, i])) / (max(x[:, i]) - min(x[:, i]))) * (b - a) + a
+    return normalized_x
