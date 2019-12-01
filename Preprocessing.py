@@ -31,7 +31,6 @@ def preprocessing():
     for c in x:
         print(c, x[c].values)
     
-    y = np.expand_dims(y, axis=1)
     x = feature_scaling(np.array(x), 0, 10)
     
     # Get the correlation between the features
@@ -43,7 +42,8 @@ def preprocessing():
     top_corr = hotel_data[top_feature].corr()
     sns.heatmap(top_corr, annot=True)
     plt.show()
-    
+
     # Split the data to training and testing sets
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.30)
-    return x_train, x_test, y_train, y_test
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.30, shuffle=True)
+    y = np.expand_dims(y, axis=1)
+    return x_train, x_test, y_train, y_test, x, y
