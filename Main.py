@@ -14,8 +14,8 @@ PlotLinearModel(X[:, 6], Y, modelPRC, 'Positive Review Word Count', 'Reviewer Sc
 linearNRC_train_error, linearNRC_test_error, modelNRC = LinearRegressionNegativeReviewCount(x_train, x_test, y_train, y_test)
 PlotLinearModel(X[:, 4], Y, modelNRC, 'Negative Review Word Count', 'Reviewer Score')
 
-multipleLR1_test_Error = Multiple_Linear_Regression1(x_train, x_test, y_train, y_test)
-multipleLR_PN_error = MultipleLinearRegressionPositiveNegative(x_train, x_test, y_train, y_test)
+multipleLR1_train_Error, multipleLR1_test_Error = Multiple_Linear_Regression1(x_train, x_test, y_train, y_test)
+multipleLR_PN_train_Error, multipleLR_PN_test_error = MultipleLinearRegressionPositiveNegative(x_train, x_test, y_train, y_test)
 
 poly1_train_error, poly1_test_error = polynomial_regression_all(x_train, x_test, y_train, y_test)
 poly2_train_error, poly2_test_error = polynomial_regression_top_three(x_train, x_test, y_train, y_test)
