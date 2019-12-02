@@ -13,6 +13,7 @@ def preprocessing():
     data.dropna(how='any', inplace=True)
     hotel_data = data.iloc[:, :]
     x = data.iloc[:, 0:12]  # Features
+    # x.drop(['Reviewer_Score'], axis=1)  # Drop output column
     y = data['Reviewer_Score']  # Label
     # Encode string data
     cols = ('Hotel_Address', 'Hotel_Name', 'Reviewer_Nationality')
@@ -26,7 +27,7 @@ def preprocessing():
     x.loc[x['Positive_Review'] != 0, "Positive_Review"] = 1
     """
     x = x.drop(['Review_Date', 'Negative_Review', 'Positive_Review'], axis=1)
-    
+
     for c in x:
         print(c, x[c].values)
 

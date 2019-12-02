@@ -9,15 +9,16 @@ def Multiple_Linear_Regression1(x_train, x_test, y_train, y_test):
     cls = linear_model.LinearRegression()
 
     cls.fit(x_train, y_train)
+
+    train_prediction = cls.predict(x_train)
+    train_error = metrics.mean_squared_error(np.asarray(y_train), train_prediction)
+    print('Mean Square Train Error for multiple linear regression on the top features on train set', train_error)
+
     prediction = cls.predict(x_test)
     test_error = metrics.mean_squared_error(np.asarray(y_test), prediction)
+    print('Mean Square Test Error for multiple linear regression on the top features on test set', test_error)
 
-    print('Mean Square Train Error for multiple linear regression on the top features', test_error)
-
-    # test_error = metrics.mean_squared_error(np.asarray(y_test)[0], prediction[0])
-    # print('Mean Square Test Error for multiple linear regression on the top features', train_error)
-    # return train_error, test_error
-    return test_error
+    return train_error, test_error
 
 
 def MultipleLinearRegressionPositiveNegative(x_train, x_test, y_train, y_test):
@@ -26,8 +27,13 @@ def MultipleLinearRegressionPositiveNegative(x_train, x_test, y_train, y_test):
 
     model = linear_model.LinearRegression()
     model.fit(x_train, y_train)
-    prediction = model.predict(x_test)
 
+    train_prediction = model.predict(x_train)
+    train_error = metrics.mean_squared_error(np.asarray(y_train), train_prediction)
+    print('Mean Square Error for Multiple Linear Regression on Positive and Negative Word Count on train set', train_error)
+
+    prediction = model.predict(x_test)
     test_error = metrics.mean_squared_error(np.asarray(y_test), prediction)
-    print('Mean Square Error for Multiple Linear Regression on Positive and Negative Word Count', test_error)
-    return test_error
+    print('Mean Square Error for Multiple Linear Regression on Positive and Negative Word Count on test set', test_error)
+
+    return train_error, test_error

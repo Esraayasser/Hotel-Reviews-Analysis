@@ -18,13 +18,12 @@ def polynomial_regression_all(x_train, x_test, y_train, y_test):
     # predicting on train data-set
     prediction_train = poly_model.predict(x_train_poly)
     error_train = metrics.mean_squared_error(y_train, prediction_train)
-    print('Mean Square Error of Polynomial Regression with 7 features on train set: ', error_train)
+    print('Mean Square Error of Polynomial Regression on train set: ', error_train)
 
     # predicting on test data-set
     prediction_test = poly_model.predict(poly_features.fit_transform(x_test))
-
     error_test = metrics.mean_squared_error(y_test, prediction_test)
-    print('Mean Square Error of Polynomial Regression with 7 features on test set: ', error_test)
+    print('Mean Square Error of Polynomial Regression on test set: ', error_test)
 
     return error_train, error_test
 
