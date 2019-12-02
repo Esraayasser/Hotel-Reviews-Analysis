@@ -12,12 +12,11 @@ def preprocessing():
     # Drop the rows that contain missing values
     data.dropna(how='any', inplace=True)
     hotel_data = data.iloc[:, :]
-    
-    x = data.iloc[:, 1:11]  # Features
+    x = data.iloc[:, 0:12]  # Features
     y = data['Reviewer_Score']  # Label
-    cols = ('Hotel_Name', 'Reviewer_Nationality')
+    # Encode string data
+    cols = ('Hotel_Address', 'Hotel_Name', 'Reviewer_Nationality')
     x = feature_encoder(x, cols)
-    
     """
     #Replaces the values in a column in the dataframe with a specific value by the value that currently exists in it.
     x.loc[x['Negative_Review'] == 'No Negative', 'Negative_Review'] = 0
@@ -28,19 +27,22 @@ def preprocessing():
     """
     x = x.drop(['Review_Date', 'Negative_Review', 'Positive_Review'], axis=1)
     
-    for c in x:
-        print(c, x[c].values)
-    
+    '''for c in x:
+        print(c, x[c].values)'''
+
+    # Normalize data
     x = feature_scaling(np.array(x), 0, 10)
     
-    # Get the correlation between the features
+    # Get the correlation between all features
     corr = hotel_data.corr()
-    # Top 50% Correlation training features with the Value
-    top_feature = corr.index[corr['Reviewer_Score'] >= -1]
-    # Correlation plot
+
+    # All Correlation training features with the Value
+    correlated_features = corr.index[corr['Reviewer_Score'] >= -1]
+
+    # Plot correlation
     plt.subplots(figsize=(12, 8))
-    top_corr = hotel_data[top_feature].corr()
-    sns.heatmap(top_corr, annot=True)
+    correlations = hotel_data[correlated_features].corr()
+    sns.heatmap(correlations, annot=True)
     plt.show()
 
     # Split the data to training and testing sets
