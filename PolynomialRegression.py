@@ -31,8 +31,8 @@ def polynomial_regression_all(x_train, x_test, y_train, y_test):
 
 # Polynomial Regressions with top three features
 def polynomial_regression_top_three(x_train, x_test, y_train, y_test):
-    x_train = x_train[:, [1, 4, 6]]
-    x_test = x_test[:, [1, 4, 6]]
+    x_train = x_train[:, [2, 5, 7]]
+    x_test = x_test[:, [2, 5, 7]]
     poly_features = PolynomialFeatures(degree=2)
 
     # transforms the existing features to higher degree features.

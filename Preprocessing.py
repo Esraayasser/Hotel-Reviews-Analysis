@@ -27,8 +27,8 @@ def preprocessing():
     """
     x = x.drop(['Review_Date', 'Negative_Review', 'Positive_Review'], axis=1)
     
-    '''for c in x:
-        print(c, x[c].values)'''
+    for c in x:
+        print(c, x[c].values)
 
     # Normalize data
     x = feature_scaling(np.array(x), 0, 10)
