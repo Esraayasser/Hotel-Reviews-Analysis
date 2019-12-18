@@ -16,7 +16,7 @@ def lbl_feature_encoder(x, cols):
     return x
 
 
-def hashing_onehot_feature_encoder(x, cols):
+def feature_dummies_encoder(x, cols):
     for c in cols:
         # label encoding for the string values in the feature.
         lbl = LabelEncoder()
@@ -25,23 +25,36 @@ def hashing_onehot_feature_encoder(x, cols):
         # Converting the categorical variable into its one-hot encoding representation.
         # by casting our it into the built-in pandas Categorical data type.
         x[c] = pd.Categorical(x[c])
-        # Drop the old categorical column
-        x.drop(c, axis=1)
         # encoding a categorically feature into a set of features.
         # using the pandas method to convert categorical variables into dummy/indicator variables
         # with the get_dummies function.
-        feature_dummies = pd.get_dummies(x[c], prefix=c)
+        feature_dummies = pd.get_dummies(x[c], prefix=c, drop_first=True)
         print(feature_dummies.shape, x.shape)
         # Concatenating the new hashed features to the original data-frame.
         x = x.join(feature_dummies)
+    return x
+
+def feature_hashing_encoder(x, cols):
+    for c in cols:
+        fh = FeatureHasher(n_features=10, input_type='string')
+        sp = fh.fit_transform(x[c])
+        df = pd.DataFrame(sp.toarray())
+        df.columns = [c+str(i) for i in range(df.shape[1])]
+        print(df.shape, x.shape)
+        print(df)
+        x = pd.concat([x, df], axis=1)
+        x = x.drop(c, axis=1)
     return x
 
 
 def multiVal_feature_encoder(x, cols):
     for c in cols:
         mlb = MultiLabelBinarizer()
-        fitteddata = mlb.fit_transform(x[c])
+        fitteddata = mlb.fit_transform(x[c].values.tolist())
+        df =  pd.DataFrame(fitteddata, columns=mlb.classes_)
+        print("yup,Here!")
         x = x.join(pd.DataFrame(fitteddata, columns=mlb.classes_))
+        print(df)
     return x
 
 

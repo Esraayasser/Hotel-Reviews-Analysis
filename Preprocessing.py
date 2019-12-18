@@ -54,13 +54,12 @@ x.update(pd.Series(tmp_list, name='Tags', index=range(len(x['Tags']))))
 # Delete the word 'days' in the 'days_since_review' column.
 tmp_list = [days.split(' ')[0] for days in x['days_since_review']]
 x.update(pd.Series(tmp_list, name='days_since_review', index=range(len(x['days_since_review']))))
-xx = x.iloc[:20, :]
-print(xx)
+
 cols = ('Hotel_Name', 'Reviewer_Nationality', 'Hotel_Address')
-x = hashing_onehot_feature_encoder(x, cols)
-xx = x.iloc[:20, :]
-print(xx)
+x = feature_hashing_encoder(x, cols)
+x = multiVal_feature_encoder(x.iloc[:250000,:], ['Tags'])
 x = feature_scaling(np.array(x), 0, 10)
+
 """
     # Get the correlation between the features
     corr = hotel_data.corr()
