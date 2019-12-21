@@ -1,12 +1,11 @@
 from sklearn import tree
 import time
-from sklearn.tree import DecisionTreeClassifier
 
 
 def decision_tree_model(X, Y):
-    decisionTree = tree.DecisionTreeClassifier(max_depth=100)
-    startTime = time.time()
-    decisionTree.fit(X, Y)
-    endTime = time.time()
-    trainTime = abs(endTime - startTime)
-    return decisionTree, trainTime
+    decision_tree = tree.DecisionTreeClassifier(max_depth=100)
+    start_time = time.time()
+    decision_tree.fit(X, Y)
+    end_time = time.time()
+    train_time = abs(end_time - start_time)
+    return decision_tree, train_time

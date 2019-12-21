@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn_pandas import CategoricalImputer
 from EditingLabels import *
 from FTIDF_StringsProcessing import *
 from Process_Missing_Values import *
