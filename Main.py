@@ -79,15 +79,22 @@ if model == 'r':
             # calling of the models
             # Training models
 
-            model, time = SVM.svm_one_versus_one_training(X_train, Y_train)
+            svm_models, svm_times = SVM.svm_models(x_train, y_train)
+            for i in range(0, len(svm_models)):
+                models.append(svm_models[i])
+                models_names.append('svm ' + str(i) + ' ' + data_list_names[list_id])
+                models_training_time.append(svm_times[i])
+
+            model, time = DecisionTree.decision_tree_model(x_train, y_train)
             models.append(model)
-            models_names.append('svm-one-versus-one' + ' ' + data_list_names[list_id])
+            models_names.append('decision-tree' + ' ' + data_list_names[list_id])
             models_training_time.append(time)
 
-            model, time = SVM.svm_one_versus_rest_training(X_train, Y_train)
+            model, time = Adaboost.adaboost_model(x_train, y_train)
             models.append(model)
-            models_names.append('svm-one-versus-all' + ' ' + data_list_names[list_id])
+            models_names.append('adaboost-decision-tree' + ' ' + data_list_names[list_id])
             models_training_time.append(time)
+            
     if test == 'y':
         # Testing Models
         models_accuracies, models_testing_time = Testing.model_testing(models, X_test, Y_test)
