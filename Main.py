@@ -1,42 +1,87 @@
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from HandlingCSVs import *
 from Preprocessing import *
 from PolynomialRegression import *
 from LinearRegression import *
-from MultipleLinearRegression import *
 import SVM
 import Testing
+# Classification milestone2, original file : 'Hotel_Reviews_Milestone_2.csv'
 
 # Initialization
 models = []  # list of models
 models_names = []  # list of models names
 models_training_time = []  # list of models training time
+# A list of all the data's dataframe to use the models on
+data_list = []
+data_list_names = []
+
+X_train = [], Y_train = []  # list of training samples
+X_test = [], Y_test = []  # list of testing samples
 
 # Pre processing
-X_train = [], y_train = []  # list of training samples
-X_test = [], y_test = []  # list of testing samples
+test = input("Would you like to preprocess the data? y/n : ")
+if test == 'y':
+    file_name = input("Please enter the file name : ")
+    data_list = preprocessing(file_name, True, testing_features_to_drop=['lat', 'lng'], tags_weights=read_csv('review_tags'))
+else:
+    # data_dummies_encoder.csv, data_hashing_encoder.csv and data_lbl_encoder.csv
+    while True:
+        file_name = input("Please enter the file name : ")
+        data_list_names.append(file_name)
+        data_list.append(read_csv(file_name.split('.')[0]))
+        ok = input("Would you like to read another file? y/n : ")
+        if ok is False:
+            break
 
-# Training models
-model, time = SVM.svm_one_versus_one_training(X_train, y_train)
-models.append(model)
-models_names.append('svm-one-versus-one')
-models_training_time.append(time)
+use_pca = input("Would you like to use PCA on the data? y/n : ")
+if use_pca is True:
+    for data in data_list:
+        pca = PCA(n_components=data.shape[1])
+        principalComponents = pca.fit_transform(data.iloc[:, :17])
+        print(pca.explained_variance_ratio_)
+        # region PCA Cumulative Plotting
+        plt.plot(np.cumsum(pca.explained_variance_ratio_))
+        plt.xlabel('number of components')
+        plt.ylabel('cumulative explained variance')
+        plt.show()
+        # endregion
 
-model, time = SVM.svm_one_versus_rest_training(X_train, y_train)
-models.append(model)
-models_names.append('svm-one-versus-all')
-models_training_time.append(time)
+#training
+# Splitting each data file into train and test samples.
+# The index of the data file name that we're training on now.
+if test == 'n':
+    list_id = -1
+    for data in data_list:
+        list_id += 1
+        # Dividing the data to x and y
+        x = data.iloc[:, :17]  # Features
+        y = data['Reviewer_Score']  # Label
+        y = np.expand_dims(y, axis=1)
+        # Split the data to training and testing sets
+        X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.20, shuffle=True)
+        # calling of the models
+        # Training models
 
-# Testing Models
-models_accuracies, models_testing_time = Testing.model_testing(models, X_test, y_test)
+        model, time = SVM.svm_one_versus_one_training(X_train, Y_train)
+        models.append(model)
+        models_names.append('svm-one-versus-one' + ' ' + data_list_names[list_id])
+        models_training_time.append(time)
+
+        model, time = SVM.svm_one_versus_rest_training(X_train, Y_train)
+        models.append(model)
+        models_names.append('svm-one-versus-all' + ' ' + data_list_names[list_id])
+        models_training_time.append(time)
+if test == 'y':
+    # Testing Models
+    models_accuracies, models_testing_time = Testing.model_testing(models, X_test, Y_test)
 
 # Printing Models outputs
 for i in range(len(models)):
     print("Model name is {} - accuracy = {} and model time = {}".
           format(models_names[i], models_accuracies*[i], models_testing_time[i]))
 
-# Regression Milestone1
-'''
-x_train, x_test, y_train, y_test, X, Y = preprocessing()
-
+"""
 linearAS_train_error, linearAS_test_error, modelAS = Linear_Regression_averageScore(x_train, x_test, y_train, y_test)
 PlotLinearModel(X[:, 1], Y, modelAS, 'Average Score', 'Reviewer Score')
 
@@ -52,4 +97,4 @@ multipleLR_PN_error = MultipleLinearRegressionPositiveNegative(x_train, x_test, 
 
 poly1_error_train, poly1_error_test = polynomial_regression_all(x_train, x_test, y_train, y_test)
 poly2_error_train, poly2_error_test = polynomial_regression_top_three(x_train, x_test, y_train, y_test)
-'''
+"""
