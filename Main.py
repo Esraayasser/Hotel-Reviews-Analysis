@@ -5,8 +5,10 @@ from Preprocessing import *
 from PolynomialRegression import *
 from LinearRegression import *
 from sklearn.model_selection import train_test_split
+from MultipleLinearRegression import *
 import SVM
 import Testing
+import KNeighborsClassifier
 
 model = input("Would you like to run the classification or the regression model? c/r : ")
 if model == 'r':
@@ -94,6 +96,13 @@ if model == 'r':
             models.append(model)
             models_names.append('adaboost-decision-tree' + ' ' + data_list_names[list_id])
             models_training_time.append(time)
+			
+			# KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
+
+			model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=3)
+			models.append(model)
+			models_names.append('KNN')
+			models_training_time.append(time)
             
     if test == 'y':
         # Testing Models
