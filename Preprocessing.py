@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from EditingLabels import *
 from FTIDF_StringsProcessing import *
 from Process_Missing_Values import *
@@ -99,7 +98,7 @@ def preprocessing(file_name, testing, testing_features_to_drop, tags_weights):
     if 'Review_Date' not in features_to_drop:
         tmp_list = [int(date.split('/')[2]) for date in data['Review_Date']]
         data.update(pd.Series(tmp_list, name='Review_Date', index=range(len(data['Review_Date']))))
-        data['Review_Date']= data['Review_Date'].astype(int)
+        data['Review_Date'] = data['Review_Date'].astype(int)
 
     # Processing the Review strings using IF-TDF
     if 'Positive_Review' not in features_to_drop and 'Negative_Review' not in features_to_drop:
@@ -107,38 +106,54 @@ def preprocessing(file_name, testing, testing_features_to_drop, tags_weights):
         data = data.drop(['Positive_Review', 'Negative_Review'], axis=1)
         data = data.join(tmp)
 
-
     # Extracting the tags in the 'Tags' column.
-    if 'Tags' not in features_to_drop:
-        tmp_list = [tag.split('[')[1] for tag in data['Tags']]
-        tmp_list = [tag.split(']')[0] for tag in tmp_list]
-        tmp_list = [tag.split(", ") for tag in tmp_list]
-        for i in range(len(tmp_list)):
-            tmp_list[i] = [tag.split("' ")[1] for tag in tmp_list[i]]
-            tmp_list[i] = [tag.split(" '")[0] for tag in tmp_list[i]]
 
-        data = data.update(pd.Series(tmp_list, name='Tags', index=range(len(data['Tags']))))
+    tmp_list = [tag.split('[')[1] for tag in data['Tags']]
+    tmp_list = [tag.split(']')[0] for tag in tmp_list]
+    tmp_list = [tag.split(", ") for tag in tmp_list]
+    for i in range(len(tmp_list)):
+        tmp_list[i] = [tag.split("' ")[1] for tag in tmp_list[i]]
+        tmp_list[i] = [tag.split(" '")[0] for tag in tmp_list[i]]
 
-        data = multiVal_feature_encoder(data, ['Tags'], testing, tags_weights)
-        data['Tags'] = data['Tags'].astype(float)
+    data.update(pd.Series(tmp_list, name='Tags', index=range(len(data['Tags']))))
+    data = multiVal_feature_encoder(data, ['Tags'])
+    data['Tags'] = data['Tags'].astype(float)
 
     # Delete the word 'days' in the 'days_since_review' column.
     if 'days_since_review' not in features_to_drop:
         tmp_list = [int(days.split(' ')[0]) for days in data['days_since_review']]
-        data = data.update(pd.Series(tmp_list, name='days_since_review', index=range(len(data['days_since_review']))))
-        data['days_since_review']= data['days_since_review'].astype(int)
+        data.update(pd.Series(tmp_list, name='days_since_review', index=range(len(data['days_since_review']))))
+        data['days_since_review'] = data['days_since_review'].astype(int)
 
     # Encoding the y label to 3 classes 0,1,2
-    data = feature_lbl_encoder(data, ['Reviewer_Score'])
+    tmp = []
+    for val in data['Reviewer_Score']:
+        val = val.lower()
+        if 'high_reviewer_score' in val:
+            tmp.append(0)
+        elif 'intermediate_reviewer_score' in val:
+            tmp.append(1)
+        else:
+            tmp.append(2)
+    data.update(pd.Series(tmp, name='Reviewer_Score', index=range(len(data['Reviewer_Score']))))
+
+    data['Reviewer_Score'] = data['Reviewer_Score'].astype(int)
+    label = data['Reviewer_Score']
+    data = data.drop(['Reviewer_Score'], axis=1)
 
     cols = ['Hotel_Name', 'Reviewer_Nationality', 'Hotel_Address']
 
     data_hashing_encoder = feature_hashing_encoder(data, cols)
     data_dummies_encoder = feature_dummies_encoder(data, cols)
     data_lbl_encoder = feature_lbl_encoder(data, cols)
+
     data_hashing_encoder = feature_scaling(data_hashing_encoder, 0, 10)
     data_dummies_encoder = feature_scaling(data_dummies_encoder, 0, 10)
     data_lbl_encoder = feature_scaling(data_lbl_encoder, 0, 10)
+
+    data_hashing_encoder = data_hashing_encoder.join(label)
+    data_dummies_encoder = data_dummies_encoder.join(label)
+    data_lbl_encoder = data_lbl_encoder.join(label)
 
     write_in_csv(data_hashing_encoder, 'data_hashing_encoder.csv')
     write_in_csv(data_dummies_encoder, 'data_dummies_encoder.csv')

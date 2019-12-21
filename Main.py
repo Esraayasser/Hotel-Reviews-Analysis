@@ -4,9 +4,11 @@ from HandlingCSVs import *
 from Preprocessing import *
 from PolynomialRegression import *
 from LinearRegression import *
+from sklearn.model_selection import train_test_split
 import SVM
 import Testing
 # Classification milestone2, original file : 'Hotel_Reviews_Milestone_2.csv'
+
 
 # Initialization
 models = []  # list of models
@@ -16,11 +18,13 @@ models_training_time = []  # list of models training time
 data_list = []
 data_list_names = []
 
-X_train = [], Y_train = []  # list of training samples
-X_test = [], Y_test = []  # list of testing samples
+X_train = []
+Y_train = []  # list of training samples
+X_test = []
+Y_test = []  # list of testing samples
 
 # Pre processing
-test = input("Would you like to preprocess the data? y/n : ")
+test = input("Would you like to preprocess the test data? y/n : ")
 if test == 'y':
     file_name = input("Please enter the file name : ")
     data_list = preprocessing(file_name, True, testing_features_to_drop=['lat', 'lng'], tags_weights=read_csv('review_tags'))
@@ -28,17 +32,19 @@ else:
     # data_dummies_encoder.csv, data_hashing_encoder.csv and data_lbl_encoder.csv
     while True:
         file_name = input("Please enter the file name : ")
-        data_list_names.append(file_name)
-        data_list.append(read_csv(file_name.split('.')[0]))
+        data_list_names.append(file_name.split('.')[0])
+        data = read_csv(file_name).round(3)
+        data_list.append(data)
         ok = input("Would you like to read another file? y/n : ")
-        if ok is False:
+        if ok == 'n':
             break
 
 use_pca = input("Would you like to use PCA on the data? y/n : ")
 if use_pca is True:
     for data in data_list:
         pca = PCA(n_components=data.shape[1])
-        principalComponents = pca.fit_transform(data.iloc[:, :17])
+        data = data.drop(['Reviewer_Score'], axis=1)
+        principalComponents = pca.fit_transform(data.iloc[:, :])
         print(pca.explained_variance_ratio_)
         # region PCA Cumulative Plotting
         plt.plot(np.cumsum(pca.explained_variance_ratio_))
@@ -55,11 +61,15 @@ if test == 'n':
     for data in data_list:
         list_id += 1
         # Dividing the data to x and y
-        x = data.iloc[:, :17]  # Features
+        x = data.iloc[:, :]  # Features
+        x = x.drop(['Reviewer_Score'], axis=1)
         y = data['Reviewer_Score']  # Label
         y = np.expand_dims(y, axis=1)
         # Split the data to training and testing sets
         X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.20, shuffle=True)
+        print(data_list_names[list_id])
+        print(X_train.head(3))
+        print(Y_train)
         # calling of the models
         # Training models
 

@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def feature_lbl_encoder (x, cols):
+def feature_lbl_encoder(x, cols):
     for c in cols:
         # label encoding for the string values in the feature.
         lbl = LabelEncoder()
@@ -37,39 +37,38 @@ def feature_hashing_encoder(x, cols):
         fh = FeatureHasher(n_features=10, input_type='string')
         sp = fh.fit_transform(x[c])
         df = pd.DataFrame(sp.toarray())
-        df.columns = [c+str(i) for i in range(df.shape[1])]
+        df.columns = [c + str(i) for i in range(df.shape[1])]
         x = pd.concat([x, df], axis=1)
         x = x.drop(c, axis=1)
     return x
 
 
-def multiVal_feature_encoder(x, cols, testing, training_tags):
+def multiVal_feature_encoder(x, cols):
     for c in cols:
-        if testing is False:
-            mlb = MultiLabelBinarizer()
-            fitteddata = mlb.fit_transform(x[c].values.tolist())
-            tags_weight = [sum(fitteddata[:, i]) for i in range(fitteddata.shape[1])]
-            tags_weight = [val / x.shape[0] for val in tags_weight]
-            tags_weight = np.reshape(tags_weight, (1, len(tags_weight)))
-            training_tags = pd.DataFrame(tags_weight, columns=mlb.classes_)
+        mlb = MultiLabelBinarizer()
+        fitteddata = mlb.fit_transform(x[c].values.tolist())
+        tags_weight = [sum(fitteddata[:, i]) for i in range(fitteddata.shape[1])]
+        tags_weight = [val / x.shape[0] for val in tags_weight]
+        tags_weight = np.reshape(tags_weight, (1, len(tags_weight)))
+        training_tags_weights = pd.DataFrame(tags_weight, columns=mlb.classes_)
 
-            # fitteddata = pd.DataFrame(fitteddata, columns=mlb.classes_)
-            """
-            print(fitteddata.shape)
-            pca = PCA(n_components=70)
-            principalComponents = pca.fit_transform(fitteddata)
-            fitteddata = pd.DataFrame(principalComponents, columns=['tag ' + i for i in range(70)])
-            print(fitteddata)
-            #x.drop(c, axis=1)
-            #x = x.join(pd.DataFrame(fitteddata, columns=mlb.classes_))
-            #x = feature_hashing_encoder(x, cols)
-            """
+        # fitteddata = pd.DataFrame(fitteddata, columns=mlb.classes_)
+        """
+        print(fitteddata.shape)
+        pca = PCA(n_components=70)
+        principalComponents = pca.fit_transform(fitteddata)
+        fitteddata = pd.DataFrame(principalComponents, columns=['tag ' + i for i in range(70)])
+        print(fitteddata)
+        #x.drop(c, axis=1)
+        #x = x.join(pd.DataFrame(fitteddata, columns=mlb.classes_))
+        #x = feature_hashing_encoder(x, cols)
+        """
         tags_weight = []
         for val in x[c]:
             for tag in val:
                 weight = 0
-                if tag in training_tags.columns:
-                    weight += training_tags[tag]
+                if tag in training_tags_weights.columns:
+                    weight += training_tags_weights[tag]
             tags_weight.append(weight)
         x.update(pd.Series(tags_weight, name='Tags', index=range(len(x['Tags']))))
     return x
