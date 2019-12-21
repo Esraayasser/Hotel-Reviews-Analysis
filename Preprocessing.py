@@ -19,7 +19,7 @@ def calculate_correlation(data):
     plt.show()
 
 
-def preprocessing(file_name, testing, testing_features_to_drop, tags_weights):
+def preprocessing(file_name, testing, testing_features_to_drop, tags_weights, model):
     # Load Hotels data
     # Drop Empty rows in the end of the file
     data = read_csv(file_name)
@@ -125,21 +125,24 @@ def preprocessing(file_name, testing, testing_features_to_drop, tags_weights):
         data.update(pd.Series(tmp_list, name='days_since_review', index=range(len(data['days_since_review']))))
         data['days_since_review'] = data['days_since_review'].astype(int)
 
-    # Encoding the y label to 3 classes 0,1,2
-    tmp = []
-    for val in data['Reviewer_Score']:
-        val = val.lower()
-        if 'high_reviewer_score' in val:
-            tmp.append(0)
-        elif 'intermediate_reviewer_score' in val:
-            tmp.append(1)
-        else:
-            tmp.append(2)
-    data.update(pd.Series(tmp, name='Reviewer_Score', index=range(len(data['Reviewer_Score']))))
+    if model == 'c':
+        # Encoding the y label to 3 classes 0,1,2
+        tmp = []
+        for val in data['Reviewer_Score']:
+            val = val.lower()
+            if 'high_reviewer_score' in val:
+                tmp.append(0)
+            elif 'intermediate_reviewer_score' in val:
+                tmp.append(1)
+            else:
+                tmp.append(2)
+        data.update(pd.Series(tmp, name='Reviewer_Score', index=range(len(data['Reviewer_Score']))))
 
-    data['Reviewer_Score'] = data['Reviewer_Score'].astype(int)
-    label = data['Reviewer_Score']
-    data = data.drop(['Reviewer_Score'], axis=1)
+        data['Reviewer_Score'] = data['Reviewer_Score'].astype(int)
+        label = data['Reviewer_Score']
+        data = data.drop(['Reviewer_Score'], axis=1)
+    else:
+        data = feature_lbl_encoder(data, ['Reviewer_Score'])
 
     cols = ['Hotel_Name', 'Reviewer_Nationality', 'Hotel_Address']
 
