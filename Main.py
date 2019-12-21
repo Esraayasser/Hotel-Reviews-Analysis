@@ -6,9 +6,11 @@ from PolynomialRegression import *
 from LinearRegression import *
 from sklearn.model_selection import train_test_split
 from MultipleLinearRegression import *
-import SVM
 import Testing
 import KNeighborsClassifier
+import SVM
+import Adaboost
+import DecisionTree
 
 model = input("Would you like to run the classification or the regression model? c/r : ")
 if model == 'r':
@@ -23,10 +25,10 @@ if model == 'r':
     data_list = []
     data_list_names = []
 
-    X_train = []
-    Y_train = []  # list of training samples
-    X_test = []
-    Y_test = []  # list of testing samples
+    x_train = []
+    y_train = []  # list of training samples
+    x_test = []
+    y_test = []  # list of testing samples
 
     # Pre processing
     test = input("Would you like to preprocess the test data? y/n : ")
@@ -61,7 +63,7 @@ if model == 'r':
             plt.show()
             # endregion
 
-    #training
+    # training
     # Splitting each data file into train and test samples.
     # The index of the data file name that we're training on now.
     if test == 'n':
@@ -74,10 +76,10 @@ if model == 'r':
             y = data['Reviewer_Score']  # Label
             y = np.expand_dims(y, axis=1)
             # Split the data to training and testing sets
-            X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.20, shuffle=True)
+            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, shuffle=True)
             print(data_list_names[list_id])
-            print(X_train.head(3))
-            print(Y_train)
+            print(x_train.head(3))
+            print(y_train)
             # calling of the models
             # Training models
 
@@ -86,6 +88,12 @@ if model == 'r':
                 models.append(svm_models[i])
                 models_names.append('svm ' + str(i) + ' ' + data_list_names[list_id])
                 models_training_time.append(svm_times[i])
+
+            # KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
+            model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=3)
+            models.append(model)
+            models_names.append('KNN' + ' ' + data_list_names[list_id])
+            models_training_time.append(time)
 
             model, time = DecisionTree.decision_tree_model(x_train, y_train)
             models.append(model)
@@ -96,22 +104,15 @@ if model == 'r':
             models.append(model)
             models_names.append('adaboost-decision-tree' + ' ' + data_list_names[list_id])
             models_training_time.append(time)
-			
-			# KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
-
-			model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=3)
-			models.append(model)
-			models_names.append('KNN')
-			models_training_time.append(time)
             
     if test == 'y':
         # Testing Models
-        models_accuracies, models_testing_time = Testing.model_testing(models, X_test, Y_test)
+        models_accuracies, models_testing_time = Testing.model_testing(models, x_test, y_test)
 
-    # Printing Models outputs
-    for i in range(len(models)):
-        print("Model name is {} - accuracy = {} and model time = {}".
-              format(models_names[i], models_accuracies*[i], models_testing_time[i]))
+        # Printing Models outputs
+        for i in range(len(models)):
+            print("Model name is {} - accuracy = {} and model time = {}".
+                  format(models_names[i], models_accuracies*[i], models_testing_time[i]))
 """
 else:
     linearAS_train_error, linearAS_test_error, modelAS = Linear_Regression_averageScore(x_train, x_test, y_train, y_test)
