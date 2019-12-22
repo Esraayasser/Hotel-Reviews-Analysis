@@ -47,12 +47,13 @@ if model == 'c':
                 break
 
     use_pca = input("Would you like to use PCA on the data? y/n : ")
-    if use_pca is True:
+    if use_pca == 'y':
+        n_comps = input("Please enter PCA's n_components: ")
         list_id = -1
         for data in data_list:
             list_id += 1
             data = data.drop(['Reviewer_Score'], axis=1)
-            pca = PCA(n_components=data.shape[1])
+            pca = PCA(n_components=int(n_comps))
             principalComponents = pca.fit_transform(data.iloc[:, :])
             print(pca.explained_variance_ratio_)
             # region PCA Cumulative Plotting
@@ -103,11 +104,13 @@ if model == 'c':
             models_names.append('SVM ' + str(i + 1))
             models_training_time.append(svm_times[i])
 
+        """
         KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
         model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=20)
         models.append(model)
         models_names.append('KNN')
         models_training_time.append(time)
+        """
 
         model, time = DecisionTree.decision_tree_model(x_train, y_train)
         models.append(model)

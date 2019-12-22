@@ -3,7 +3,7 @@ import time
 
 
 def decision_tree_model(X, Y):
-    decision_tree = tree.DecisionTreeClassifier(max_depth=100)
+    decision_tree = tree.DecisionTreeClassifier(max_depth=2)  # 3 or more overfits
     start_time = time.time()
     decision_tree.fit(X, Y)
     end_time = time.time()
