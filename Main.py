@@ -4,13 +4,16 @@ from HandlingCSVs import *
 from Preprocessing import *
 from PolynomialRegression import *
 from LinearRegression import *
-from sklearn.model_selection import train_test_split
+from sklearn import model_selection
 from MultipleLinearRegression import *
 import Testing
 import KNeighborsClassifier
 import SVM
 import Adaboost
 import DecisionTree
+import pickle
+import Models
+import HandlingCSVs
 
 model = input("Would you like to run the classification or the regression model? c/r : ")
 if model == 'c':
@@ -34,7 +37,7 @@ if model == 'c':
     preprocess_test = input("Would you like to preprocess the test data? y/n : ")
     if preprocess_test == 'y':
         file_name = input("Please enter the file name : ")
-        data_list = preprocessing(file_name, True, testing_features_to_drop=['lat', 'lng'], tags_weights=read_csv('review_tags'), model=model)
+        data_list = preprocessing(file_name, True, testing_features_to_drop=['lat', 'lng'], tags_weights=read_csv('tags_weights.csv'), model=model)
     else:
         # data_hashing_encoder.csv and data_lbl_encoder.csv
         while True:
@@ -64,11 +67,8 @@ if model == 'c':
             plt.show()
             # endregion
 
-    # do = input("Would you like to train or test? train/test ")
-    # training
     # Splitting each data file into train and test samples.
     # The index of the data file name that we're training on now.
-    # if do == "train":
     list_id = -1
     for data in data_list:
         list_id += 1
@@ -77,7 +77,7 @@ if model == 'c':
         x.drop(['Additional_Number_of_Scoring', 'Review_Date', 'Average_Score', 'Total_Number_of_Reviews',
                 'Total_Number_of_Reviews_Reviewer_Has_Given', 'Tags', 'days_since_review',
                 'Hotel_Name0', 'Hotel_Name1', 'Hotel_Name2', 'Hotel_Name3', 'Hotel_Name4',
-                'Hotel_Name5', 'Hotel_Name6', 'Hotel_Name7', 'Hotel_Name9',
+                'Hotel_Name5', 'Hotel_Name6', 'Hotel_Name7', 'Hotel_Name8', 'Hotel_Name9',
                 'Reviewer_Nationality0', 'Reviewer_Nationality1', 'Reviewer_Nationality2',
                 'Reviewer_Nationality3', 'Reviewer_Nationality4', 'Reviewer_Nationality5',
                 'Reviewer_Nationality6', 'Reviewer_Nationality7', 'Reviewer_Nationality8',
@@ -88,39 +88,64 @@ if model == 'c':
                 'Reviewer_Score'], axis=1)
         y = data['Reviewer_Score']
         # y = data.iloc[:100000, 40] # Label
-        y = y.values.ravel() # convert column vector to 1d array
+        y = y.values.ravel()  # convert column vector to 1d array
         # y = np.expand_dims(y, axis=1)
-        # Split the data to training and testing sets
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, shuffle=False)
-        print(data_list_names[list_id])
-        print(x_train.head(3))
-        print(y_train)
-        # calling of the models
-        # Training models
 
-        svm_models, svm_times = SVM.svm_models(x_train, y_train)
-        for i in range(0, len(svm_models)):
-            models.append(svm_models[i])
-            models_names.append('SVM ' + str(i + 1))
-            models_training_time.append(svm_times[i])
+        do = input("Would you like to train or test? train/test: ")
+        if do == "test":
+            models = Models.load_models()
+            x_test = x
+            y_test = y
 
-        """
-        KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
-        model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=20)
-        models.append(model)
-        models_names.append('KNN')
-        models_training_time.append(time)
-        """
+        if do == "train":
+            """
+            # Split the data to training and testing sets
+            x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_size=0.20, shuffle=False)
+            print(data_list_names[list_id])
+            print(x_train.head(3))
+            print(y_train)
+            """
 
-        model, time = DecisionTree.decision_tree_model(x_train, y_train)
-        models.append(model)
-        models_names.append('Decision Tree')
-        models_training_time.append(time)
+            """
+            for c in [1000, 100000, 1000000]:
+                model, time = SVM.svm_models(x_train, y_train, c)
+                models.append(model)
+                models_names.append('SVM ' + str(c))
+                models_training_time.append(time)
+            """
 
-        model, time = Adaboost.adaboost_model(x_train, y_train)
-        models.append(model)
-        models_names.append('Adaboost Decision Tree')
-        models_training_time.append(time)
+            x_train = x
+            y_train = y
+
+            model, time = SVM.svm_models(x_train, y_train, 1000000)
+            models.append(model)
+            models_names.append('SVM 3')
+            models_training_time.append(time)
+            filename = 'svm3.sav'
+            pickle.dump(model, open(filename, 'wb'))
+
+
+            """
+            KNeighborsClassifier.plot_different_k_values(x_train, y_train, x_test, y_test)
+            model, time = KNeighborsClassifier.knn_train(x_train, y_train, k=20)
+            models.append(model)
+            models_names.append('KNN')
+            models_training_time.append(time)
+            """
+
+            model, time = DecisionTree.decision_tree_model(x_train, y_train)
+            models.append(model)
+            models_names.append('Decision Tree')
+            models_training_time.append(time)
+            filename = 'dt.sav'
+            pickle.dump(model, open(filename, 'wb'))
+
+            model, time = Adaboost.adaboost_model(x_train, y_train)
+            models.append(model)
+            models_names.append('Adaboost Decision Tree')
+            models_training_time.append(time)
+            filename = 'ada.sav'
+            pickle.dump(model, open(filename, 'wb'))
 
         # Testing Models
         models_accuracies, models_testing_time = Testing.model_testing(models, x_test, y_test)
@@ -151,7 +176,9 @@ if model == 'c':
         plt.ylabel('Time')
         plt.title('Total Testing Time')
         plt.show()
+
 """
+# MS1
 else:
     linearAS_train_error, linearAS_test_error, modelAS = Linear_Regression_averageScore(x_train, x_test, y_train, y_test)
     PlotLinearModel(X[:, 1], Y, modelAS, 'Average Score', 'Reviewer Score')

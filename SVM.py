@@ -3,7 +3,7 @@ from sklearn import svm
 import time
 
 
-def svm_models(x_train, y_train):
+def svm_models(x_train, y_train, c):
     c_values = [1000, 100000, 1000000]
     models = []
     times = []
