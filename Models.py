@@ -8,3 +8,8 @@ def load_models():
     models.append(pickle.load(open('ada.sav', 'rb')))
     return models
 
+
+def save_models(models, models_names):
+    for i in len(models):
+        filename = models_names[i] + '.sav'
+        pickle.dump(models[i], open(filename, 'wb'))
