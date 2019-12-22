@@ -3,6 +3,18 @@ from sklearn import metrics
 import numpy as np
 
 
+def Multiple_Linear_Regression(x_train, y_train, cols):
+    x_train = x_train[cols]
+    cls = linear_model.LinearRegression()
+
+    cls.fit(x_train, y_train)
+    print('Co-efficient of linear regression', cls.coef_)
+    print('Intercept of linear regression model', cls.intercept_)
+
+    return cls
+
+
+
 def Multiple_Linear_Regression1(x_train, x_test, y_train, y_test):
     x_train = x_train[:, [1, 4, 6]]
     x_test = x_test[:, [1, 4, 6]]

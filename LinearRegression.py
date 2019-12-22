@@ -4,6 +4,20 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 
 
+def Linear_Regression(x_train, y_train, cols):
+    model = linear_model.LinearRegression()
+
+    x_train = x_train[cols]
+
+    model.fit(x_train, y_train)
+
+    prediction = model.predict(x_train)
+    train_error = metrics.mean_squared_error(y_train, prediction)
+    print('Mean Square Error of Linear Regression with Review_Total_Positive_Word_Counts feature on train set: '
+          , train_error)
+
+    return train_error, model
+
 def Linear_Regression_averageScore(x_train, x_test, y_train, y_test):
     model = linear_model.LinearRegression()
 
